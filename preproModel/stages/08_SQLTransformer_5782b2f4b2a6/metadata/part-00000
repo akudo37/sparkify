@@ -1,1 +1,0 @@
-{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551539052936,"sparkVersion":"2.4.0","uid":"SQLTransformer_5782b2f4b2a6","paramMap":{"statement":"         SELECT *,             CASE WHEN ts == lastTS THEN NULL ELSE eventInterval END AS trueInterval         FROM __THIS__"},"defaultParamMap":{}}

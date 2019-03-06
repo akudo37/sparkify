@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551801303383,"sparkVersion":"2.4.0","uid":"SQLTransformer_b2c9c127fe8d","paramMap":{"statement":"         SELECT *,             CASE WHEN page = 'Cancellation Confirmation' THEN 1 ELSE 0 END AS churn_event         FROM __THIS__"},"defaultParamMap":{}}
