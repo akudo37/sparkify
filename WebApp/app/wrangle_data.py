@@ -90,12 +90,9 @@ def return_heatmap(n_sample=10):
     '''
     global spark, pd_event, labels, feature_data, classifiedModel
 
-    # sample n users
-    pd_event_sample = pd_event.sample(10, axis=0)
-
-    # change timestamp to integer and sort data by timestamp
-    pd_event['ts'] = pd_event['ts'].astype(int)
+    # sort data by timestamp and change timestamp to integer
     pd_event = pd_event.sort_values('ts')
+    pd_event['ts'] = pd_event['ts'].astype(int)
 
     # sample n users
     user_list = pd_event['userId'].unique()
