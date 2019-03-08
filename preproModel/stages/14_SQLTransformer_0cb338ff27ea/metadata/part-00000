@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551841123431,"sparkVersion":"2.4.0","uid":"SQLTransformer_0cb338ff27ea","paramMap":{"statement":"         SELECT userId, label, featureVec AS features         FROM __THIS__"},"defaultParamMap":{}}

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Sparkify Data Dashboard</title>
+
+<!--import script files needed from plotly and bootstrap-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+
+<body>
+
+<!--middle section-->
+<div class="row">
+
+    <!--vertical navbar links-->
+    <ul class="col-1 nav flex-column">
+      <li class="nav-item">
+        <a class="nav-link" href="https://www.udacity.com">Udacity</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://github.com/akudo37/sparkify">GitHub</a>
+      </li>
+    </ul>
+
+    <!--visualizations column-->
+    <div class="col-11">
+
+        <!--chart descriptions-->
+        <div id="middle-info" class="mt-1">
+
+            <h3 id="tag-line">Sparkify Project</h3>
+            <h5 id="tag-line" class="text-muted">User event pattern and churn prediction model</h5>
+
+        </div>
+
+        <!--charts-->
+        <div id="charts" class="container mt-1 text-center">
+
+            <!--top chart-->
+            <div class="row">
+                <div class="col">
+                    <div id="{{ids[0]}}"></div>
+                </div>
+            </div>
+
+            <!--middle button-->
+            <div class="row">
+                <div class="col mt-2 mb-2">
+                  <form action="" method="post">
+                    <div class="form-group">
+                      {% if button_for_new_sample %}
+                      <input type="submit" name="sample" value="Load New Samples" class="btn btn-primary">
+                      {% else %}
+                      <input type="submit" name="predict" value="Predict Churn" class="btn btn-primary">
+                      {% endif %}
+                    </div>
+                  </form>
+                </div>
+            </div>
+
+            <!--bottom table-->
+            <div class="row">
+                <div class="col">
+                    <table class="table table-sm table-bordered table-condensed" style="font-size : 12px;">
+                      <thead>
+                        <tr>
+                          <th scope="col">User ID</th>
+                          <th scope="col">Churn Probability</th>
+                          <th scope="col">Model Prediction</th>
+                          <th scope="col">Latest Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for id, actual, proba, pred, judge in table_data %}
+                        <tr>
+                          <th scope="row">{{id}}</th>
+                          <td>{{proba}}</td>
+                          {% if judge == -1 %}
+                          <td>{{pred}}</td>
+                          {% elif judge == 1 %}
+                          <td class="table-success">{{pred}}</td>
+                          {% else %}
+                          <td class="table-danger">{{pred}}</td>
+                          {% endif %}
+                          <td>{{actual}}</td>
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    <div>
+</div>
+
+<!--footer section-->
+<div id="footer" class="container"></div>
+
+</body>
+
+
+<footer>
+
+    <script type="text/javascript">
+        // plots the figure with id
+        // id much match the div id above in the html
+        var figures = {{figuresJSON | safe}};
+        var ids = {{ids | safe}};
+        for(var i in figures) {
+            Plotly.plot(ids[i],
+                figures[i].data,
+                figures[i].layout || {});
+        }
+    </script>
+
+</footer>
+
+
+</html>

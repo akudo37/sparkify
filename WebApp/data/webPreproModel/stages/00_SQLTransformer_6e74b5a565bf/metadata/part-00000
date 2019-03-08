@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551841541048,"sparkVersion":"2.4.0","uid":"SQLTransformer_6e74b5a565bf","paramMap":{"statement":"SELECT * FROM __THIS__ WHERE userId IS NOT NULL AND sessionId IS NOT NULL"},"defaultParamMap":{}}

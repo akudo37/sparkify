@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551841545262,"sparkVersion":"2.4.0","uid":"SQLTransformer_b7b5fb10680e","paramMap":{"statement":"         SELECT *,             CASE WHEN event_name == 'NextSong' THEN trueInterval END AS songInterval         FROM __THIS__"},"defaultParamMap":{}}

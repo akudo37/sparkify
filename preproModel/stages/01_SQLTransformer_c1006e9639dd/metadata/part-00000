@@ -1,1 +1,0 @@
-{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551801303054,"sparkVersion":"2.4.0","uid":"SQLTransformer_c1006e9639dd","paramMap":{"statement":"SELECT * FROM __THIS__ WHERE userId != ''"},"defaultParamMap":{}}

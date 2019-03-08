@@ -1,3 +1,5 @@
 mini_sparkify_event_data.json
-__pycache__/
+micro_sparkify_event_data.json
 spark-warehouse/
+Backup/
+WebApp/data/micro_sparkify_event_data.json

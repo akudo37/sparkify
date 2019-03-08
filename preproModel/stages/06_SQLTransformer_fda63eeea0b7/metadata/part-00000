@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551841120201,"sparkVersion":"2.4.0","uid":"SQLTransformer_fda63eeea0b7","paramMap":{"statement":"         SELECT userId, Churn AS label, ts, registration, level, event_name         FROM (             SELECT *, REPLACE(page, ' ', '_') AS event_name             FROM __THIS__)"},"defaultParamMap":{}}

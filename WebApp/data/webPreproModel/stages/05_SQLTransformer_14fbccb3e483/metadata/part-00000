@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.SQLTransformer","timestamp":1551841542940,"sparkVersion":"2.4.0","uid":"SQLTransformer_14fbccb3e483","paramMap":{"statement":"         SELECT *,             MAX(churn_event) OVER (                 PARTITION BY userId             ) AS Churn         FROM __THIS__"},"defaultParamMap":{}}
