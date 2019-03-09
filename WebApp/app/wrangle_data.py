@@ -17,24 +17,6 @@ spark = SparkSession \
     .master("local") \
     .getOrCreate()
 
-# load heatmap data and labels from pickle file
-#heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
-heatmap_data_path = './data/micro_sparkify_heatmap_1000.pickle'
-with open(heatmap_data_path, 'rb') as f:
-    package = pickle.load(f)
-pd_event = package['heatmap']
-labels = package['labels']
-
-# load processed data
-feature_data_path = './data/mini_sparkify_features.parquet'
-print('Loading data...\n    DATASET: {}'.format(feature_data_path))
-feature_data = spark.read.load(feature_data_path)
-
-# load trained Gradient Boosted-Tree Classifier model from folder
-model_path = './models/webGbtModel'
-print('Loading model...\n    MODEL: {}'.format(model_path))
-classifierModel = PipelineModel.load(model_path)
-
 
 def return_prediction(sample_id):
     '''
@@ -50,7 +32,17 @@ def return_prediction(sample_id):
     Make prediction on sampled data and return labels, probabilities and
     predictions.
     '''
-    global spark, pd_event, labels, feature_data, classifiedModel
+    global spark
+
+    # load processed data
+    feature_data_path = './data/micro_sparkify_features.parquet'
+    print('Loading data...\n    DATASET: {}'.format(feature_data_path))
+    feature_data = spark.read.load(feature_data_path)
+
+    # load trained Gradient Boosted-Tree Classifier model from folder
+    model_path = './models/webGbtModel'
+    print('Loading model...\n    MODEL: {}'.format(model_path))
+    classifierModel = PipelineModel.load(model_path)
 
     # extract subset of data for sample id
     print('Extracting samples...')
@@ -89,7 +81,16 @@ def return_heatmap(n_sample=10):
     DESCRIPTION:
     Creates plotly heatmap visualization.
     '''
-    global spark, pd_event, labels, feature_data, classifiedModel
+    global spark
+
+    # load heatmap data and labels from pickle file
+    #heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
+    heatmap_data_path = './data/micro_sparkify_heatmap_1000.pickle'
+    with open(heatmap_data_path, 'rb') as f:
+        package = pickle.load(f)
+
+    pd_event = package['heatmap']
+    labels = package['labels']
 
     # cast data into integer and sort by timestamp
     pd_event['ts'] = pd_event['ts'].astype(np.uint32)

@@ -2,7 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, desc, last
 from pyspark.sql import Window
 from pyspark.ml.feature import StringIndexer
-from pyspark.ml.pipeline import Pipeline
+from pyspark.ml.pipeline import Pipeline, PipelineModel
 
 import argparse
 import pickle
@@ -17,12 +17,16 @@ def main():
     INPUT:
     data_path - (string) filepath of event log JSON file
     id_list_path = (string) filepath of user ID CSV file
+    pipeline_load_path = (string) folderpath of pipeline to load fit \
+        pipeline from
+    feature_save_path - (string) filepath of parquet file to save features to
     heatmap_save_path - (string) filepath of pickle file to save heatmap data
         and event name list to
 
     DESCRIPTION:
-    Make heatmap data for visualization into pandas dataframe and save it into
-        a pickle file.
+    Cleans and transforms log file into a feature file for given user IDS.
+    Also make heatmap data for visualization into pandas dataframe and save it
+        into a pickle file.
     Event name list is saved together with the heatmap data as dictionary.
     Dictionary key to access heatmap data is 'heatmap', and key for event name
         is 'labels'.
@@ -33,6 +37,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("data_path", help="filepath of event log JSON file")
     parser.add_argument("id_path", help="filepath of user ID CSV file")
+    parser.add_argument("pipeline_load_path",
+        help="folderpath of pipeline to load fit pipeline from")
+    parser.add_argument("feature_save_path", help="filepath of parquet file \
+        to save features to")
     parser.add_argument("heatmap_save_path",
                         help="filepath of pickle file to save heatmap data \
                         and event name list to")
@@ -57,7 +65,7 @@ def main():
     del userIdList['Unnamed: 0']
     userIds = userIdList['userId'].values.tolist()
 
-    print('Transforming to heatmap data...')
+    print('Transforming to feature data...')
     # create SQL tables of 'data''
     data.createOrReplaceTempView('t_data')
     # extract test set users from data
@@ -66,8 +74,18 @@ def main():
         FROM t_data \
         WHERE userId IN ({})".format(', '.join([str(i) for i in userIds])))
 
+    # load preprocess pipeline from folder and transform data
+    prepro_model = PipelineModel.load(args.pipeline_load_path)
+    feature_data = prepro_model.transform(test_data)
+
+    # save data to a file
+    print('Saving feature data...\n    DATASET: {}'.format(args.feature_save_path))
+    feature_data.write.mode('overwrite').save(args.feature_save_path)
+    print('Feature data saved to parquet file!')
+
+    print('Transforming to heatmap data...')
     # extract last n_last_events of each user
-    n_last_events = 0  #1000
+    n_last_events = 1000  # or 0
     if n_last_events > 0:  # if 0, take all data
         user_descTs_follow_n_window = Window \
             .partitionBy('userId') \
