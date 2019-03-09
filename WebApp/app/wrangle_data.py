@@ -18,7 +18,8 @@ spark = SparkSession \
     .getOrCreate()
 
 # load heatmap data and labels from pickle file
-heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
+#heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
+heatmap_data_path = './data/micro_sparkify_heatmap_1000.pickle'
 with open(heatmap_data_path, 'rb') as f:
     package = pickle.load(f)
 pd_event = package['heatmap']
@@ -90,9 +91,11 @@ def return_heatmap(n_sample=10):
     '''
     global spark, pd_event, labels, feature_data, classifiedModel
 
-    # sort data by timestamp and change timestamp to integer
+    # cast data into integer and sort by timestamp
+    pd_event['ts'] = pd_event['ts'].astype(np.uint32)
+    pd_event['userId'] = pd_event['userId'].astype(np.uint32)
+    pd_event['event'] = pd_event['event'].astype(np.uint8)
     pd_event = pd_event.sort_values('ts')
-    pd_event['ts'] = pd_event['ts'].astype(int)
 
     # sample n users
     user_list = pd_event['userId'].unique()
@@ -104,12 +107,8 @@ def return_heatmap(n_sample=10):
     pd_heatmap = pd_event_sample.groupby('ts').max()
     pd_heatmap = pd_heatmap.pivot(columns='userId', values='event').transpose()
 
-    # sort by userId (as integer)
-    pd_heatmap = pd_heatmap.reset_index()
-    pd_heatmap['int_id'] = pd_heatmap['userId'].apply(lambda x: int(x))
-    pd_heatmap = pd_heatmap.sort_values('int_id', ascending=False)
-    pd_heatmap = pd_heatmap.drop('int_id', axis=1)
-    pd_heatmap = pd_heatmap.set_index('userId')
+    # sort by userId (descending order)
+    pd_heatmap = pd_heatmap.sort_index(ascending=False)
 
     # create heatmap data
     x = pd_heatmap.columns.values.tolist()
