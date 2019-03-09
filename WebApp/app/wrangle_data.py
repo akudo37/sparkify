@@ -18,14 +18,14 @@ spark = SparkSession \
     .getOrCreate()
 
 # load heatmap data and labels from pickle file
-heatmap_data_path = './data/micro_sparkify_heatmap.pickle'
+heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
 with open(heatmap_data_path, 'rb') as f:
     package = pickle.load(f)
 pd_event = package['heatmap']
 labels = package['labels']
 
 # load processed data
-feature_data_path = './data/micro_sparkify_features.parquet'
+feature_data_path = './data/mini_sparkify_features.parquet'
 print('Loading data...\n    DATASET: {}'.format(feature_data_path))
 feature_data = spark.read.load(feature_data_path)
 
@@ -176,7 +176,7 @@ def return_heatmap(n_sample=10):
     ]
 
     # heatmap layout
-    layout_one = dict(title='Sparkify user event patterns in time series',
+    layout_one = dict(title='Sparkify last 1000 user event patterns in time series',
                       xaxis=dict(title='Timestamp (second)',
                                  ticks='',
                                  type='category',

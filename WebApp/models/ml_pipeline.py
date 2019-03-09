@@ -58,10 +58,10 @@ def build_model():
 def main():
     '''
     INPUT:
-    data_path - (string, mandatory) filepath of parquet file to load cleaned
-        and transformed data from
-    model_save_path - (string, mandatory for model training) folderpath of
-        classifier to save trained classifier to
+    data_path - (string) filepath of parquet file to load cleaned and
+        transformed data from
+    model_save_path - (string) folderpath of classifier to save trained
+        classifier to
 
     DESCRIPTION:
     ML pipeline standalone mode main routine. It trains classifier and saves.

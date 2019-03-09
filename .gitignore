@@ -1,5 +1,7 @@
 mini_sparkify_event_data.json
 micro_sparkify_event_data.json
+nano_sparkify_event_data.json
 spark-warehouse/
 Backup/
 WebApp/data/micro_sparkify_event_data.json
+WebApp/data/nano_sparkify_event_data.json
