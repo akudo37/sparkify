@@ -9,19 +9,10 @@ from pyspark.ml.pipeline import PipelineModel
 import pickle
 
 
-# create a Spark session (in case of local workspace)
-'''please modify for actual Spark environment'''
-spark = SparkSession \
-    .builder \
-    .appName("Sparkify") \
-    .master("local") \
-    .getOrCreate()
-
-
 def return_prediction(sample_id):
     '''
     INPUT:
-    sample_id - (list) list of sampled userId
+    sample_id - (list) list of sampled userId in display order
 
     OUTPUT:
     actuals - (list) list of actual churn status (0 or 1)
@@ -32,7 +23,14 @@ def return_prediction(sample_id):
     Make prediction on sampled data and return labels, probabilities and
     predictions.
     '''
-    global spark
+
+    # create a Spark session (in case of local workspace)
+    '''please modify for actual Spark environment'''
+    spark = SparkSession \
+        .builder \
+        .appName("Sparkify") \
+        .master("local") \
+        .getOrCreate()
 
     # load processed data
     feature_data_path = './data/micro_sparkify_features.parquet'
@@ -55,10 +53,9 @@ def return_prediction(sample_id):
                                           'prediction').toPandas()
     print('Data classified!')
 
-    # sort by userId (as integer)
-    pd_classified['int_id'] = pd_classified['userId'].apply(lambda x: int(x))
-    pd_classified = pd_classified.sort_values('int_id')
-    pd_classified = pd_classified.drop('int_id', axis=1)
+    # sort in display order
+    pd_classified['userId'] = pd_classified['userId'].astype(int)
+    pd_classified = pd_classified.set_index('userId').loc[sample_id, :]
 
     actuals = [x for x in pd_classified['label']]
     probas = [round(x[1], 3) for x in pd_classified['probability']]
@@ -76,12 +73,11 @@ def return_heatmap(n_sample=10):
 
     OUTPUT:
     figures - (list) list containing plotly heatmap visualization
-    y - (list) list of sampled userId
+    display_id_list - (list) list of sampled userId in display order
 
     DESCRIPTION:
     Creates plotly heatmap visualization.
     '''
-    global spark
 
     # load heatmap data and labels from pickle file
     #heatmap_data_path = './data/micro_sparkify_heatmap_full.pickle'
@@ -104,20 +100,16 @@ def return_heatmap(n_sample=10):
     sample_id = user_list[:n_sample]
     pd_event_sample = pd_event[pd_event['userId'].isin(sample_id)]
 
-    # change to userId x ts table (event index as matrix values)
-    pd_heatmap = pd_event_sample.groupby('ts').max()
-    pd_heatmap = pd_heatmap.pivot(columns='userId', values='event').transpose()
+    # extract user id in display order
+    display_id_list = pd_event_sample['userId'].unique().tolist()
 
-    # sort by userId (descending order)
-    pd_heatmap = pd_heatmap.sort_index(ascending=False)
-
-    # create heatmap data
-    x = pd_heatmap.columns.values.tolist()
-    y = pd_heatmap.index.values.tolist()
-    z = pd_heatmap.values.tolist()
+    # create heatmap data (scatter plot)
+    x = pd_event_sample['ts'].values.tolist()
+    y = pd_event_sample['userId'].values.tolist()
+    z = pd_event_sample['event'].values.tolist()
 
     # create heatmap hovertext
-    text = pd_heatmap.applymap(lambda x: labels[int(x)] if x >= 0 else x)
+    text = pd_event_sample['event'].apply(lambda x: labels[int(x)] if x >= 0 else x)
 
     # create heatmap colorscale
     # refer to 'tab20' colormap of matplotlib
@@ -158,20 +150,25 @@ def return_heatmap(n_sample=10):
 
     # create heatmap
     graph_one = [
-        go.Heatmap(
+        go.Scatter(
             x=x,
             y=y,
-            z=z,
-            zmin=0,
-            zmax=19,
             text=text,
             hoverinfo='text',
-            colorscale=_tab19_colorscale,
-            colorbar=dict(tickmode='array',
-                          tickvals=np.arange(0.5, 19, 1),
-                          ticktext=labels,
-                          ticks='outside',
-                          tickfont=dict(size=10))
+            mode='markers',
+            marker=dict(
+                symbol='line-ns-open',
+                size=20,
+                color=z,
+                colorscale=_tab19_colorscale,
+                colorbar=dict(tickmode='array',
+                              tickvals=np.arange(0.5, 19, 1),
+                              ticktext=labels,
+                              ticks='outside',
+                              tickfont=dict(size=10)),
+                cmin=0,
+                cmax=18,
+            )
         )
     ]
 
@@ -183,12 +180,11 @@ def return_heatmap(n_sample=10):
                                  tickfont=dict(size=8)),
                       yaxis=dict(title='User ID',
                                  ticks='',
-                                 type='category'
-                                 ),
+                                 type='category'),
                       margin=dict(b=80, t=50))
 
     # append all charts to the figures list
     figures = []
     figures.append(dict(data=graph_one, layout=layout_one))
 
-    return figures, y
+    return figures, display_id_list
