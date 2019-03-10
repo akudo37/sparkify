@@ -15,10 +15,8 @@ sample_id = None
 def index():
     global figures, sample_id
 
-    if request.method == 'POST' and 'predict' in request.form:
-        if figures is None or sample_id is None:
-            figures, sample_id = return_heatmap()
-            sample_id = sample_id[::-1]
+    if request.method == 'POST' and 'predict' in request.form and sample_id\
+        is not None:
 
         actuals, probas, preds = return_prediction(sample_id)
         judges = [actual == pred for (actual, pred) in zip(actuals, preds)]
@@ -29,7 +27,7 @@ def index():
 
         button_for_new_sample = True
     else:  # GET or 'sample' case
-        figures, sample_id = return_heatmap()
+        figures, sample_id = return_heatmap(n_sample=5)
         sample_id = sample_id[::-1]
 
         # empty table

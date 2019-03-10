@@ -54,12 +54,19 @@ def return_prediction(sample_id):
     print('Data classified!')
 
     # sort in display order
-    pd_classified['userId'] = pd_classified['userId'].astype(int)
-    pd_classified = pd_classified.set_index('userId').loc[sample_id, :]
+    pd_classified['userId'].astype(int, copy=False)
+    pd_classified.set_index('userId', inplace=True)
+    pd_classified = pd_classified.loc[sample_id, :]
 
     actuals = [x for x in pd_classified['label']]
     probas = [round(x[1], 3) for x in pd_classified['probability']]
     preds = [x for x in pd_classified['prediction']]
+
+    # clear pyspark dataframe cache
+    feature_data.unpersist()
+    sample_data.unpersist()
+    classifiedData.unpersist()
+    spark.stop()
 
     return actuals, probas, preds
 
@@ -89,10 +96,10 @@ def return_heatmap(n_sample=10):
     labels = package['labels']
 
     # cast data into integer and sort by timestamp
-    pd_event['ts'] = pd_event['ts'].astype(np.uint32)
-    pd_event['userId'] = pd_event['userId'].astype(np.uint32)
-    pd_event['event'] = pd_event['event'].astype(np.uint8)
-    pd_event = pd_event.sort_values('ts')
+    pd_event['ts'].astype(np.uint32, copy=False)
+    pd_event['userId'].astype(np.uint32, copy=False)
+    pd_event['event'].astype(np.uint8, copy=False)
+    pd_event.sort_values('ts', inplace=True)
 
     # sample n users
     user_list = pd_event['userId'].unique()
