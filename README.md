@@ -110,14 +110,14 @@ web app whole screen:<br>
 ![whole_screen](images/web_app_screen1.png)<br>
 > x-axis: timestamp<br>
 > y-axis: randomly selected 5 user ids<br>
-> colors: distinguish 19 types of events
+> colors: 19 types of events
 
 The heatmap is drawn using Plotly so that it can use pan and zoom with mouse.<br>
-![zooming](images/web_app_screen2.png)<br>
-> selecting area with to zoom in
+![zooming](images/web_app_screen2_updated.png)<br>
+> selecting area to zoom in
 
 Hover text is available by moving cursor to each event line.<br>
-![zooming](images/web_app_screen3.png)<br>
+![zooming](images/web_app_screen3_updated.png)<br>
 > Plotly control buttons are available on top right corner
 
 Clicking "Predict Churn" button initiate data transformation by trained model. And after a while, prediction result appears together with actual label.<br>
